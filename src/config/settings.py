@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'weather_app',
 ]
 
 MIDDLEWARE = [
@@ -60,7 +62,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            "templates/sneaker_store",
+            "templates/weather_app",
         ],
         'APP_DIRS': True,
         'OPTIONS': {
