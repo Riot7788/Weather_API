@@ -8,6 +8,44 @@
 
 {% block content %}
 
-    <h2> First view </h2>
+<h1>Погода:</h1>
+
+<form method="get" action="/" class="mb-4">
+    <div class="input-group">
+        <input type="text"
+               name="city"
+               class="form-control"
+               placeholder="Введите город..."
+               required>
+        <button class="btn btn-primary" type="submit">Поиск</button>
+    </div>
+</form>
+
+{% if error %}
+<div class="alert alert-danger">
+    {{ error }}
+</div>
+{% endif %}
+
+<div class="col-5 offset-2">
+    <div class="alert alert-info">
+        <div class="row">
+            <div class="col-9">
+                <b>Город:</b> {{ info.city }}<br>
+                <b>Страна:</b> {{ info.country }}<br>
+                <b>Широта и Долгота:</b> {{ info.lat }} , {{ info.lon }}<br>
+                <b>Температура:</b> {{ info.temp }}°C<br>
+                <b>Скорость ветра:</b> {{ info.wind_speed }} м/с<br>
+                <b>Описание:</b> {{ info.description }}
+            </div>
+
+            <div class="col-2 offset-1 text-center">
+                <img src="http://openweathermap.org/img/w/{{ info.icon }}.png"
+                     alt="Фото погоды"
+                     class="img-fluid">
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}
