@@ -2,9 +2,7 @@
 
 {% load static %}
 
-
-{% block title %} First view {% endblock %}
-
+{% block title %} Погода {% endblock %}
 
 {% block content %}
 
@@ -16,7 +14,14 @@
                name="city"
                class="form-control"
                placeholder="Введите город..."
+               value="{{ info.city|default:'' }}"
                required>
+
+        <select name="unit" class="form-select">
+            <option value="C" {% if request.GET.unit == "C" or not request.GET.unit %}selected{% endif %}>°C</option>
+            <option value="F" {% if request.GET.unit == "F" %}selected{% endif %}>°F</option>
+        </select>
+
         <button class="btn btn-primary" type="submit">Поиск</button>
     </div>
 </form>
@@ -27,22 +32,36 @@
 </div>
 {% endif %}
 
-<div class="col-5 offset-2">
-    <div class="alert alert-info">
+{% if info %}
+<div class="col-8 offset-2">
+    <div class="alert {% if from_cache %}alert-warning{% else %}alert-info{% endif %}">
+
+        {% if from_cache %}
+        <div class="mb-2">
+            <span class="badge bg-warning text-dark">✓ Данные из кэша</span>
+        </div>
+        {% endif %}
+
         <div class="row">
             <div class="col-9">
                 <b>Город:</b> {{ info.city }}<br>
                 <b>Страна:</b> {{ info.country }}<br>
-                <b>Широта и Долгота:</b> {{ info.lat }} , {{ info.lon }}<br>
-                <b>Температура:</b> {{ info.temp }}°C<br>
+                <b>Координаты:</b> {{ info.lat|floatformat:2 }}, {{ info.lon|floatformat:2 }}<br>
+                <b>Температура:</b> {{ info.temp }}
+                {% if info.unit == "F" %}°F{% else %}°C{% endif %}
+                <br>
                 <b>Скорость ветра:</b> {{ info.wind_speed }} м/с<br>
-                <b>Описание:</b> {{ info.description }}
+                <b>Описание:</b> {{ info.description|capfirst }}
             </div>
 
             <div class="col-2 offset-1 text-center">
+                {% if info.icon %}
                 <img src="http://openweathermap.org/img/w/{{ info.icon }}.png"
-                     alt="Фото погоды"
+                     alt="{{ info.description }}"
                      class="img-fluid">
+                <br>
+                <small>{{ info.description|capfirst }}</small>
+                {% endif %}
             </div>
         </div>
     </div>

@@ -3,35 +3,55 @@ import os
 from django.http import HttpResponse
 from django.shortcuts import render
 
+from .service import (
+    get_cached_weather,
+    get_weather_from_api,
+    save_weather_from_api,
+)
+
 
 def home_view(request):
 
-    API_KEY = os.environ.get("API_KEY")
+    city = request.GET.get("city", "Minsk")
+    unit = request.GET.get("unit", "C")
 
-    city = request.GET.get("city","Minsk")
+    cached_query = get_cached_weather(city, unit)
+    if cached_query:
+        context = create_context_from_query(cached_query, from_cache=True)
+        return render(request, "home.html", context)
 
-    url = f"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={API_KEY}&units=metric"
+    weather_data = get_weather_from_api(city)
 
-    weather = requests.get(url.format(city)).json()
+    if weather_data.get("cod") != 200:
+        return render(request, "home.html", {
+            "error": f"Город '{city}' не найден",
+            "city": city
+        })
 
-    if weather.get("cod") == "404":
-        return render(request, "home.html", {"error": "Город не найден"})
+    weather_query = save_weather_from_api(weather_data, unit, from_cache=False)
+    context = create_context_from_query(weather_query, from_cache=False, weather_data=weather_data)
 
-    city_info = {
-        'city': weather["name"],
-        'country': weather["sys"]["country"],
-        'lat': weather["coord"]["lat"],
-        'lon': weather["coord"]["lon"],
-        'temp': round(weather["main"]["temp"]),
-        'wind_speed': weather["wind"]["speed"],
-        'icon': weather["weather"][0]["icon"],
-        'description': weather["weather"][0]["description"],
+    return render(request, "home.html", context)
+
+
+def create_context_from_query(weather_query, from_cache=False, weather_data=None):
+    """Создаёт контекст для шаблона из объекта WeatherQuery"""
+
+    icon = ""
+    if weather_data and not from_cache:
+        icon = weather_data["weather"][0]["icon"]
+
+    return {
+        "info": {
+            'city': weather_query.city,
+            'country': weather_query.country,
+            'lat': weather_query.latitude,
+            'lon': weather_query.longitude,
+            'temp': round(weather_query.temperature),
+            'wind_speed': weather_query.wind_speed,  # Всегда в м/с
+            'description': weather_query.description,
+            'unit': weather_query.unit,
+            'icon': icon,
+        },
+        "from_cache": from_cache,
     }
-
-    context = {'info': city_info}
-
-    return render(
-        request=request,
-        template_name="home.html",
-        context=context
-    )
