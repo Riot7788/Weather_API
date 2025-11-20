@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load change_params %}
+
+{% block title %} about us {% endblock %}
+
+
+{% block content %}
+
+<h1>История запросов погоды</h1>
+
+{% if page_obj %}
+<div class="table-responsive">
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Город</th>
+                <th>Страна</th>
+                <th>Температура</th>
+                <th>Ветер</th>
+                <th>Описание</th>
+                <th>Время запроса</th>
+                <th>Статус</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for query in page_obj %}
+            <tr>
+                <td>{{ query.city }}</td>
+                <td>{{ query.country }}</td>
+                <td>{{ query.temperature|floatformat:1 }}°{{ query.unit }}</td>
+                <td>{{ query.wind_speed|floatformat:1 }} м/с</td>
+                <td>{{ query.description|capfirst }}</td>
+                <td>{{ query.timestamp|date:"d.m.Y H:i" }}</td>
+                <td>
+                    {% if query.from_cache %}
+                    <span class="badge bg-warning text-dark">Кэш</span>
+                    {% else %}
+                    <span class="badge bg-success">API</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+<nav aria-label="Page navigation example">
+    <ul class="pagination justify-content-center my-4">
+        <div class="custom-shadow d-flex">
+
+            <!-- Назад -->
+            <li class="page-item {% if not page_obj.has_previous %} disabled {% endif %}">
+                <a class="page-link"
+                   href="{% if page_obj.has_previous %}?{% change_params page=page_obj.previous_page_number %}{% else %}#{% endif %}">
+                    Назад
+                </a>
+            </li>
+
+            {% for page in page_obj.paginator.page_range %}
+                {% if page >= page_obj.number|add:-2 and page <= page_obj.number|add:2 %}
+                    <li class="page-item {% if page_obj.number == page %} active {% endif %}">
+                        <a class="page-link" href="?{% change_params page=page %}">{{ page }}</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            <li class="page-item {% if not page_obj.has_next %} disabled {% endif %}">
+                <a class="page-link"
+                   href="{% if page_obj.has_next %}?{% change_params page=page_obj.next_page_number %}{% else %}#{% endif %}">
+                    Следующая
+                </a>
+            </li>
+
+        </div>
+    </ul>
+</nav>
+
+
+{% else %}
+<div class="alert alert-info">
+    Запросов не найдено.
+</div>
+{% endif %}
+
+
+<div class="text-center mt-4">
+    <a href="{% url 'home' %}" class="btn btn-outline-primary">
+        ← Назад к поиску погоды
+    </a>
+</div>
+
+{% endblock %}

@@ -1,7 +1,6 @@
-import requests
-import os
-from django.http import HttpResponse
+from django.core.paginator import Paginator
 from django.shortcuts import render
+from .models import WeatherQuery
 
 from .service import (
     get_cached_weather,
@@ -48,10 +47,29 @@ def create_context_from_query(weather_query, from_cache=False, weather_data=None
             'lat': weather_query.latitude,
             'lon': weather_query.longitude,
             'temp': round(weather_query.temperature),
-            'wind_speed': weather_query.wind_speed,  # Всегда в м/с
+            'wind_speed': weather_query.wind_speed,
             'description': weather_query.description,
             'unit': weather_query.unit,
             'icon': icon,
         },
         "from_cache": from_cache,
     }
+
+
+def query_history(request):
+
+    queries = WeatherQuery.objects.all().order_by('-timestamp')
+
+    paginator = Paginator(queries, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+    }
+
+    return render(
+        request=request,
+        template_name="history.html",
+        context=context
+    )
