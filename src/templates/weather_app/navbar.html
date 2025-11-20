@@ -7,20 +7,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item dropdown ">
-                        <a class="nav-link dropdown-toggle text-white" href="#" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            Информация
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item  text-white" href="#">Контактная информация</a></li>
-                            <li><a class="dropdown-item  text-white" href="#">Про нас</a></li>
-
-                        </ul>
-                    </li>
                     <li class="nav-item">
-                        <a class="nav-link  text-white" href="#">Войти</a>
+                        <a class="nav-link  text-white" href="{% url 'history' %}">История запросов</a>
                     </li>
+
                     <li class="nav-item dropdown ">
                         <a class="nav-link dropdown-toggle text-white" href="#" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">
@@ -29,7 +19,7 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item  text-white" href="#">Личный кабинет</a>
                             <li><a class="dropdown-item  text-white" href="#">Регистрация пользователя</a></li>
-                            <li><a class="dropdown-item  text-white" href="#">Админ панель</a></li>
+                            <li><a class="dropdown-item  text-white" href="{% url 'admin:index' %}">Админ панель</a></li>
                             <li>
                                 <hr class="dropdown-divider">
                             </li>
