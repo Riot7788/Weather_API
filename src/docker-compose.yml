@@ -1,0 +1,36 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_NAME=weather_db
+      - DB_USER=weather_user
+      - DB_PASS=weather_pass
+      - DB_HOST=db
+      - DB_PORT=5432
+      - API_KEY=${API_KEY}
+      - SECRET_KEY=${SECRET_KEY}
+      - DEBUG=True
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    command: >
+      sh -c "sleep 10 &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+  db:
+    image: postgres:15
+    environment:
+      - POSTGRES_DB=weather_db
+      - POSTGRES_USER=weather_user
+      - POSTGRES_PASSWORD=weather_pass
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  postgres_data:
