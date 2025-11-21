@@ -46,6 +46,12 @@
     </table>
 </div>
 
+<div class="mb-3 text-center">
+    <a href="{% url 'export_csv' %}?city={{ city_filter }}&date_from={{ date_from }}&date_to={{ date_to }}"
+       class="btn btn-success">
+       Экспорт в CSV
+    </a>
+</div>
 
 <nav aria-label="Page navigation example">
     <ul class="pagination justify-content-center my-4">

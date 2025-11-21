@@ -1,3 +1,7 @@
+import csv
+from django.http import HttpResponse
+from django.utils import timezone
+from datetime import datetime
 from django.core.paginator import Paginator
 from django.shortcuts import render
 from .models import WeatherQuery
@@ -73,3 +77,39 @@ def query_history(request):
         template_name="history.html",
         context=context
     )
+
+
+def export_history_csv(request):
+    """Экспорт истории запросов в CSV"""
+
+    queries = WeatherQuery.objects.all().order_by('-timestamp')
+
+    city_filter = request.GET.get('city', '')
+    if city_filter:
+        queries = queries.filter(city__icontains=city_filter)
+
+    response = HttpResponse(
+        content_type='text/csv; charset=utf-8-sig')
+    response[
+        'Content-Disposition'] = f'attachment; filename="weather_history_{timezone.now().strftime("%Y%m%d_%H%M")}.csv"'
+
+    writer = csv.writer(response, delimiter=';')
+
+    writer.writerow([
+        'Город', 'Страна', 'Температура', 'Единицы',
+        'Скорость ветра (м/с)', 'Описание', 'Время запроса', 'Из кэша'
+    ])
+
+    for query in queries:
+        writer.writerow([
+            query.city,
+            query.country,
+            round(query.temperature),
+            query.unit,
+            f'"{round(query.wind_speed, 1)}"м/с',
+            query.description,
+            query.timestamp.strftime('%d.%m.%Y %H:%M'),
+            'Да' if query.from_cache else 'Нет'
+        ])
+
+    return response
